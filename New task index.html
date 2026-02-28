@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GrowthLog | Daily Task Tracker</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body{
+    margin:0;
+    font-family:Segoe UI;
+    background:linear-gradient(135deg,#141e30,#243b55);
+    color:white;
+    text-align:center;
+}
+.container{
+    max-width:700px;
+    margin:auto;
+    padding:20px;
+}
+.card{
+    background:rgba(255,255,255,0.1);
+    padding:20px;
+    margin-bottom:20px;
+    border-radius:15px;
+}
+input,button{
+    padding:10px;
+    border-radius:8px;
+    border:none;
+    margin:5px;
+}
+button{
+    background:#0a66c2;
+    color:white;
+    cursor:pointer;
+}
+ul{
+    list-style:none;
+    padding:0;
+}
+li{
+    background:rgba(255,255,255,0.2);
+    padding:8px;
+    margin:5px 0;
+    border-radius:8px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🚀 GrowthLog - Daily Tracker</h1>
+
+<div class="container">
+
+<div class="card">
+<h2>📝 Add Daily Task</h2>
+<input type="text" id="taskInput" placeholder="Enter task">
+<button onclick="addTask()">Add</button>
+<ul id="taskList"></ul>
+</div>
+
+<div class="card">
+<h2>📈 Daily Score (1-10)</h2>
+<input type="number" id="scoreInput" min="1" max="10" placeholder="Enter score">
+<button onclick="addScore()">Update</button>
+<canvas id="chart"></canvas>
+</div>
+
+</div>
+
+<script>
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+let scores = JSON.parse(localStorage.getItem("scores")) || [];
+
+function addTask(){
+    let input=document.getElementById("taskInput");
+    if(input.value!==""){
+        tasks.push(input.value);
+        localStorage.setItem("tasks",JSON.stringify(tasks));
+        input.value="";
+        displayTasks();
+    }
+}
+
+function displayTasks(){
+    let list=document.getElementById("taskList");
+    list.innerHTML="";
+    tasks.forEach(task=>{
+        let li=document.createElement("li");
+        li.textContent=task;
+        list.appendChild(li);
+    });
+}
+
+function addScore(){
+    let input=document.getElementById("scoreInput");
+    if(input.value!==""){
+        scores.push(input.value);
+        localStorage.setItem("scores",JSON.stringify(scores));
+        input.value="";
+        updateChart();
+    }
+}
+
+displayTasks();
+
+let ctx=document.getElementById("chart").getContext("2d");
+let chart=new Chart(ctx,{
+    type:"line",
+    data:{
+        labels:scores.map((_,i)=>"Day "+(i+1)),
+        datasets:[{
+            label:"Growth Score",
+            data:scores,
+            borderColor:"#00c6ff",
+            borderWidth:3
+        }]
+    },
+    options:{
+        scales:{y:{beginAtZero:true,max:10}}
+    }
+});
+
+function updateChart(){
+    chart.data.labels=scores.map((_,i)=>"Day "+(i+1));
+    chart.data.datasets[0].data=scores;
+    chart.update();
+}
+</script>
+
+</body>
+</html>
